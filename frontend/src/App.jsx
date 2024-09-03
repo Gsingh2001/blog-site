@@ -13,7 +13,7 @@ function App() {
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/blogs');
+      const response = await axios.get('https://blog-site-1emf.onrender.com/blogs');
       setBlogs(response.data);
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -22,7 +22,7 @@ function App() {
 
   const handleCreateBlog = async () => {
     try {
-      await axios.post('http://localhost:3000/blogs', newBlog);
+      await axios.post('https://blog-site-1emf.onrender.com/blogs', newBlog);
       fetchBlogs();
       setNewBlog({ title: '', author: '', content: '', date: '', tags: '' });
     } catch (error) {
@@ -32,7 +32,7 @@ function App() {
 
   const handleDeleteBlog = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/blogs/${id}`);
+      await axios.delete(`https://blog-site-1emf.onrender.com/blogs/${id}`);
       fetchBlogs();
     } catch (error) {
       console.error('Error deleting blog:', error);
@@ -41,7 +41,7 @@ function App() {
 
   const handleEditBlog = async () => {
     try {
-      await axios.put(`http://localhost:3000/blogs/${editingBlog.id}`, editingBlog);
+      await axios.put(`https://blog-site-1emf.onrender.com/blogs/${editingBlog.id}`, editingBlog);
       fetchBlogs();
       setEditingBlog(null);
     } catch (error) {
