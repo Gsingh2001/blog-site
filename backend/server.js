@@ -76,6 +76,6 @@ app.put('/blogs/:id', (req, res) => {
 });
 
 // Start server
-app.listen(port, '172.16.0.2', () => { // Listen on all network interfaces
-  console.log(`Server is running on http://172.16.0.2:${port}`);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
