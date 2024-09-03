@@ -1,0 +1,15 @@
+{
+  "blogs": [
+    {
+      "title": "My First Blog",
+      "author": "John Doe",
+      "content": "This is the content of my first blog post.",
+      "date": "2024-09-01",
+      "tags": [
+        "Introduction",
+        "Personal"
+      ],
+      "id": 2
+    }
+  ]
+}
