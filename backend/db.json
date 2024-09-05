@@ -1,4 +1,12 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@user.com",
+      "password": "$2b$10$KOjv9cDDiv4579THNsEYNO0BTKyxi.IvoI4.NRzHiXSA/PjTicJfy",
+      "profilePhoto": "uploads\\1725533340587.png"
+    }
+  ],
   "articles": []
 }
