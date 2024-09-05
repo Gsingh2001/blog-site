@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { BaseUrl } from '../assets/utils/auth';
 
 function MainBanner() {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
     // Fetch articles from API
-    axios.get('https://blog-site-1emf.onrender.com/articles')
+    axios.get(`${BaseUrl}articles`)
       .then(response => {
         setArticles(response.data);
       })
@@ -26,7 +27,7 @@ function MainBanner() {
                 <Link to={`/blog/${articles[0].id}`}> {/* Add Link component for routing */}
                   <img
                     className="img-fluid h-100"
-                    src={`https://blog-site-1emf.onrender.com/${articles[0].main_image}`}
+                    src={`${BaseUrl}${articles[0].main_image}`}
                     style={{ objectFit: 'cover' }}
                     alt="Main Banner"
                   />
@@ -56,7 +57,7 @@ function MainBanner() {
                   <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                     <img
                       className="img-fluid w-100 h-100"
-                      src={`https://blog-site-1emf.onrender.com/${article.main_image}`}
+                      src={`${BaseUrl}${article.main_image}`}
                       style={{ objectFit: 'cover' }}
                       alt={`News ${index + 1}`}
                     />

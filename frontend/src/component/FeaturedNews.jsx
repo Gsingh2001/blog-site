@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
+import { BaseUrl } from '../assets/utils/auth';
 
 function FeaturedNews() {
   const [newsItems, setNewsItems] = useState([]);
@@ -12,7 +13,7 @@ function FeaturedNews() {
   useEffect(() => {
     async function fetchNewsItems() {
       try {
-        const response = await fetch('https://blog-site-1emf.onrender.com/articles');
+        const response = await fetch(`${BaseUrl}articles`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -74,7 +75,7 @@ function FeaturedNews() {
               <Link to={`/blog/${item.id}`}>
                 <img
                   className="img-fluid h-100"
-                  src={`https://blog-site-1emf.onrender.com/${item.main_image}`}
+                  src={`${BaseUrl}${item.main_image}`}
                   alt={`news-${item.id}`}
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
