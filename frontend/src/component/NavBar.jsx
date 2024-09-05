@@ -41,12 +41,9 @@ function NavBar() {
     };
 
     const handleLogout = () => {
-        // Clear local storage and context
-        localStorage.removeItem('user');
-        setUser(null); // Clear the user in the context
-
-        // Redirect to login page or home page
-        navigate('/login'); // Adjust the path if needed
+        localStorage.clear();
+        setUser(null);
+        navigate('/login');
     };
 
     return (

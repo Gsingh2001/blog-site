@@ -6,15 +6,24 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const saltRounds = 10;
-
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const randomstring = require('randomstring');
 const app = express();
-const port = 3003;
+const port = 3000;
 
 app.use(cors());
 app.use(express.json()); // Ensure that the express.json() middleware is used to parse JSON request bodies
 
 const DB_FILE = './db.json';
 
+const transporter = nodemailer.createTransport({
+  service: 'Zoho', // Use your email service
+  auth: {
+    user: 'bloggerkuldeep@zohomail.in', // Your email address
+    pass: 'cK0scxWa7ZSnzcT'   // Your email password or app-specific password
+  }
+});
 // Utility function to read the database JSON file
 const readDatabase = () => {
   const rawData = fs.readFileSync(DB_FILE, 'utf-8');
@@ -259,6 +268,46 @@ app.get('/myblogs', authenticateToken, (req, res) => {
   res.status(200).json(articlesByAuthor);
 });
 
+app.post('/forgot-password', async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  const db = readDatabase();
+  const user = db.users.find(user => user.username === username);
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  // Generate a new random password
+  const newPassword = randomstring.generate({ length: 12, charset: 'alphanumeric' });
+
+  // Hash the new password
+  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+  // Update the user's password in the database
+  user.password = hashedPassword;
+  writeDatabase(db);
+
+  // Send the new password to the user's email
+  const mailOptions = {
+    from: 'bloggerkuldeep@zohomail.in',
+    to: user.email,
+    subject: 'Password Reset',
+    html: `<p>Your new password is: <strong>${newPassword}</strong></p>`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'New password sent to email' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Error sending new password email' });
+  }
+});
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { BaseUrl } from '../assets/utils/auth';
+import { TailSpin } from 'react-loader-spinner';
+import { toast } from 'react-toastify';
+
 
 const SignupPage = () => {
     const [profilePhoto, setProfilePhoto] = useState(null);
@@ -10,6 +13,7 @@ const SignupPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // State to manage loading
 
     const handleProfilePhotoChange = (e) => {
         setProfilePhoto(e.target.files[0]);
@@ -21,31 +25,43 @@ const SignupPage = () => {
             setError('Passwords do not match');
             return;
         }
-
+    
         const formData = new FormData();
         formData.append('profilePhoto', profilePhoto);
         formData.append('username', username);
         formData.append('email', email);
         formData.append('password', password);
-
+    
+        setLoading(true); // Show loader
         try {
             const response = await fetch(`${BaseUrl}signup`, {
                 method: 'POST',
                 body: formData,
             });
-
+    
             if (!response.ok) {
-                throw new Error('Signup failed');
+                // Assuming API returns error in JSON format
+                const errorData = await response.json();
+                // Extract the error message, you may need to adjust this based on your API response structure
+                const errorMessage = errorData.error || 'Signup failed. Please try again.';
+                throw new Error(errorMessage); // Throw user-friendly error message
             }
-
+    
             const result = await response.json();
+            toast.success('Signup successful!'); // Show success toast
             console.log('Signup successful:', result);
             // Redirect or handle successful signup
         } catch (error) {
-            setError('Signup failed. Please try again.');
+            // Display the user-friendly error message in state and toast
+            setError(error.message);
+            toast.error(error.message);
             console.error('Error:', error);
+        } finally {
+            setLoading(false); // Hide loader
         }
     };
+    
+    
 
     return (
         <Container className="d-flex align-items-center justify-content-center h-100">
@@ -99,8 +115,8 @@ const SignupPage = () => {
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                     />
                                 </Form.Group>
-                                <Button variant="primary" type="submit" className="w-100 mt-3">
-                                    Sign Up
+                                <Button variant="primary" type="submit" className="w-100 mt-3" disabled={loading}>
+                                    {loading ? <TailSpin height={20} width={20} color="#fff" /> : 'Sign Up'}
                                 </Button>
                                 {error && <div className="text-danger mt-3">{error}</div>}
                             </Form>
