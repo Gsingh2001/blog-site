@@ -72,7 +72,7 @@ function AddBlogPage() {
         images.forEach((image, index) => formDataToSend.append(`images[${index}]`, image));
 
         try {
-            await axios.post('http://localhost:3002/article', formDataToSend, {
+            await axios.post('http://localhost:3001/article', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

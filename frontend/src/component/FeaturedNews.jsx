@@ -12,7 +12,7 @@ function FeaturedNews() {
   useEffect(() => {
     async function fetchNewsItems() {
       try {
-        const response = await fetch('http://localhost:3000/articles');
+        const response = await fetch('https://blog-site-1emf.onrender.com/articles');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -74,7 +74,7 @@ function FeaturedNews() {
               <Link to={`/blog/${item.id}`}>
                 <img
                   className="img-fluid h-100"
-                  src={`http://localhost:3000/${item.main_image}`}
+                  src={`https://blog-site-1emf.onrender.com/${item.main_image}`}
                   alt={`news-${item.id}`}
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />

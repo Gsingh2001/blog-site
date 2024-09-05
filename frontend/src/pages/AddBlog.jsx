@@ -25,7 +25,7 @@ function AddBlog() {
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/blogs');
+      const response = await axios.get('https://blog-site-1emf.onrender.com/blogs');
       setBlogs(response.data);
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -60,7 +60,7 @@ function AddBlog() {
         });
       });
 
-      await axios.post('http://localhost:3000/blogs', formData, {
+      await axios.post('https://blog-site-1emf.onrender.com/blogs', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -92,7 +92,7 @@ function AddBlog() {
         });
       });
 
-      await axios.put(`http://localhost:3000/blogs/${editingBlog.id}`, formData, {
+      await axios.put(`https://blog-site-1emf.onrender.com/blogs/${editingBlog.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -174,7 +174,7 @@ function AddBlog() {
 
   const handleDeleteBlog = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/blogs/${id}`);
+      await axios.delete(`https://blog-site-1emf.onrender.com/blogs/${id}`);
       fetchBlogs();
     } catch (error) {
       console.error('Error deleting blog:', error);

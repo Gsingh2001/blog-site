@@ -9,7 +9,7 @@ function SingleNews() {
 
   useEffect(() => {
     // Fetch article data from API
-    axios.get(`http://localhost:3000/article/${id}`)
+    axios.get(`https://blog-site-1emf.onrender.com/article/${id}`)
       .then(response => {
         setArticleData(response.data);
       })
@@ -28,7 +28,7 @@ function SingleNews() {
     <Container fluid className="position-relative mb-3">
       <img
         className="img-fluid w-100"
-        src={`http://localhost:3000/${main_image}`}
+        src={`https://blog-site-1emf.onrender.com/${main_image}`}
         style={{ objectFit: 'cover' }}
         alt="Main"
       />
@@ -51,13 +51,13 @@ function SingleNews() {
         )}
         {images.length > 0 && images.map((img, index) => (
           <div key={index} className="mb-3">
-            <img className="img-fluid w-50" src={`http://localhost:3000/${img}`} alt={`News Image ${index + 1}`} />
+            <img className="img-fluid w-50" src={`https://blog-site-1emf.onrender.com/${img}`} alt={`News Image ${index + 1}`} />
           </div>
         ))}
       </div>
       <div className="d-flex justify-content-between bg-white border border-top-0 p-4">
         <div className="d-flex align-items-center">
-          <img className="rounded-circle mr-2" src={`http://localhost:3000/${author_avatar}`} width="25" height="25" alt="Author" />
+          <img className="rounded-circle mr-2" src={`https://blog-site-1emf.onrender.com/${author_avatar}`} width="25" height="25" alt="Author" />
           <span>{author_name}</span>
         </div>
         {/* Add placeholders for views and comments if not provided in the data */}
