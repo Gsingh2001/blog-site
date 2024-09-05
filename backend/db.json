@@ -6,6 +6,13 @@
       "email": "test@user.com",
       "password": "$2b$10$KOjv9cDDiv4579THNsEYNO0BTKyxi.IvoI4.NRzHiXSA/PjTicJfy",
       "profilePhoto": "uploads\\1725533340587.png"
+    },
+    {
+      "id": 2,
+      "username": "awdad",
+      "email": "wd@m.com",
+      "password": "$2b$10$NHyBHFHSfZMYBfImY6UhHOSALKnc7lJiYkdeplxcZ27mdmseNh8ey",
+      "profilePhoto": null
     }
   ],
   "articles": []

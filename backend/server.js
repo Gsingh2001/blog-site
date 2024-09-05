@@ -10,18 +10,18 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
 const app = express();
-const port = 3001;
-
+const port = 3002;
+require('dotenv').config();
 app.use(cors());
 app.use(express.json()); // Ensure that the express.json() middleware is used to parse JSON request bodies
 
 const DB_FILE = './db.json';
 
 const transporter = nodemailer.createTransport({
-  service: 'Zoho', // Use your email service
+  service: process.env.EMAIL_SERVICE, // Use environment variable
   auth: {
-    user: 'bloggerkuldeep@zohomail.in', // Your email address
-    pass: 'cK0scxWa7ZSnzcT'   // Your email password or app-specific password
+    user: process.env.EMAIL_USER, // Use environment variable
+    pass: process.env.EMAIL_PASS  // Use environment variable
   }
 });
 // Utility function to read the database JSON file
