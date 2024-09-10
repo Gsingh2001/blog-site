@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import { BaseUrl } from '../assets/utils/auth';
+import { Link } from 'react-router-dom';
+import { ref, get } from 'firebase/database'; // Import Firebase database functions
+import { database } from '../../firebase'; // Import Firebase database from your configuration
 
 function MainBanner() {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    // Fetch articles from API
-    axios.get(`${BaseUrl}articles`)
-      .then(response => {
-        setArticles(response.data);
-      })
-      .catch(error => {
+    const fetchArticles = async () => {
+      try {
+        const articlesRef = ref(database, 'blogPosts');
+        const snapshot = await get(articlesRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const articlesArray = Object.keys(data).map(key => ({
+            id: key,
+            ...data[key]
+          }));
+          setArticles(articlesArray);
+        } else {
+          console.log('No data available');
+        }
+      } catch (error) {
         console.error('Error fetching articles:', error);
-      });
+      }
+    };
+    fetchArticles();
   }, []);
 
   return (
@@ -24,10 +35,10 @@ function MainBanner() {
           <div className="owl-carousel main-carousel position-relative">
             {articles.length > 0 && (
               <div className="position-relative overflow-hidden" style={{ height: '500px' }}>
-                <Link to={`/blog/${articles[0].id}`}> {/* Add Link component for routing */}
+                <Link to={`/blog/${articles[0].id}`}>
                   <img
                     className="img-fluid h-100"
-                    src={`${BaseUrl}${articles[0].main_image}`}
+                    src={articles[0].main_image}
                     style={{ objectFit: 'cover' }}
                     alt="Main Banner"
                   />
@@ -53,11 +64,11 @@ function MainBanner() {
           <div className="row mx-0">
             {articles.slice(1, 5).map((article, index) => (
               <div className="col-md-6 px-0" key={article.id}>
-                <Link to={`/blog/${article.id}`}> {/* Add Link component for routing */}
+                <Link to={`/blog/${article.id}`}>
                   <div className="position-relative overflow-hidden" style={{ height: '250px' }}>
                     <img
                       className="img-fluid w-100 h-100"
-                      src={`${BaseUrl}${article.main_image}`}
+                      src={article.main_image}
                       style={{ objectFit: 'cover' }}
                       alt={`News ${index + 1}`}
                     />

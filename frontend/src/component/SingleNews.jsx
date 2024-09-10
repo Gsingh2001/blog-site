@@ -1,26 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { BaseUrl } from '../assets/utils/auth';
+import { ref, get } from 'firebase/database'; // Firebase database imports
+import { database } from '../../firebase'; // Import Firebase database from your configuration
+
 
 function SingleNews() {
   const { id } = useParams();
   const [articleData, setArticleData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch article data from API
-    axios.get(`${BaseUrl}article/${id}`)
-      .then(response => {
-        setArticleData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching article:', error);
-      });
+    async function fetchArticleData() {
+      try {
+        // Reference to the specific article in Firebase Realtime Database
+        const articleRef = ref(database, `blogPosts/${id}`);
+        const snapshot = await get(articleRef);
+
+        if (snapshot.exists()) {
+          setArticleData(snapshot.val());
+        } else {
+          console.log('No data available');
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArticleData();
   }, [id]);
 
+  if (loading) return <div className="text-center mt-5">Loading...</div>;
+  if (error) return <div className="text-center mt-5">Error: {error}</div>;
+
   if (!articleData) {
-    return <div className="text-center mt-5">Loading...</div>;
+    return <div className="text-center mt-5">No article found.</div>;
   }
 
   const { title, date, category, content, images, main_image, author_name, author_avatar } = articleData;
@@ -31,7 +48,7 @@ function SingleNews() {
       <Row className="mb-4">
         <Col>
           <img
-            src={`${BaseUrl}${main_image}`}
+            src={main_image} // Ensure `main_image` is the full URL
             alt="Main"
             className="img-fluid rounded"
             style={{ objectFit: 'cover', height: '300px', width: '100%' }}
@@ -69,7 +86,7 @@ function SingleNews() {
                   {images.map((img, index) => (
                     <Col md={6} lg={4} className="mb-3" key={index}>
                       <img
-                        src={`${BaseUrl}${img}`}
+                        src={img} // Ensure `img` is the full URL
                         alt={`News Image ${index + 1}`}
                         className="img-fluid rounded"
                         style={{ height: '250px', objectFit: 'cover' }}
@@ -82,14 +99,13 @@ function SingleNews() {
             <Card.Footer className="bg-white border-top-0 d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <img
-                  src={`${BaseUrl}${author_avatar}`}
+                  src={author_avatar} // Ensure `author_avatar` is the full URL
                   alt="Author"
                   className="rounded-circle mr-2"
                   style={{ width: '30px', height: '30px' }}
                 />
                 <span>{author_name}</span>
               </div>
-             
             </Card.Footer>
           </Card>
         </Col>

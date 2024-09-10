@@ -1,14 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { BaseUrl } from '../assets/utils/auth';
-import { jwtDecode } from 'jwt-decode';
 import { UserContext } from '../assets/utils/UserContexts';
 import { Puff } from 'react-loader-spinner'; // Import React Loader
 import { toast } from 'react-toastify'; // Import React Toastify
+import { auth } from '../../firebase'; // Import Firebase auth
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase auth method
 
 const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState(''); // Change from username to email
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false); // Add loading state
@@ -18,34 +18,21 @@ const LoginPage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true); // Set loading to true when request starts
-        const data = { username, password };
 
         try {
-            const response = await fetch(`${BaseUrl}login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-
-            const result = await response.json();
-            const token = result.token;
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const token = await user.getIdToken(); // Get the ID token for authenticated user
+            
             localStorage.setItem('token', token);
-            if (token) {
-                const decodedToken = jwtDecode(token);
-                localStorage.setItem('user', JSON.stringify(decodedToken));
-                setUser(decodedToken);
-            }
+            localStorage.setItem('user', JSON.stringify(user));
+            setUser(user);
+            
             toast.success('Login successful!');
             navigate('/');
         } catch (error) {
-            setError('Login failed. Please try again.');
-            toast.error('Login failed. Please try again.');
+            setError('Login failed. Please check your credentials and try again.');
+            toast.error('Login failed. Please check your credentials and try again.');
             console.error('Error:', error);
         } finally {
             setLoading(false); // Set loading to false when request ends
@@ -60,13 +47,13 @@ const LoginPage = () => {
                         <Card.Body>
                             <Card.Title className="mb-4 text-center">Login</Card.Title>
                             <Form onSubmit={handleSubmit}>
-                                <Form.Group controlId="formUsername">
-                                    <Form.Label>Username</Form.Label>
+                                <Form.Group controlId="formEmail">
+                                    <Form.Label>Email address</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        placeholder="Enter Username"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         required
                                     />
                                 </Form.Group>

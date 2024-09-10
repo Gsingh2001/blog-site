@@ -1,13 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import Select from 'react-select'; 
-import { BaseUrl } from '../assets/utils/auth';
+import { ref as dbRef, set, push } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage imports
+import Select from 'react-select';
 import { UserContext } from '../assets/utils/UserContexts';
-import { Puff } from 'react-loader-spinner'; // Import React Loader
-import { toast } from 'react-toastify'; // Import React Toastify
+import { Puff } from 'react-loader-spinner';
+import { toast } from 'react-toastify';
+import { database, storage } from '../../firebase'; // Import both database and storage
 
 function AddBlogPage() {
-    const { user } = useContext(UserContext); 
+    const { user } = useContext(UserContext);
 
     const predefinedCategories = [
         { value: 'Tech', label: 'Tech' },
@@ -20,22 +21,22 @@ function AddBlogPage() {
     const [formData, setFormData] = useState({
         title: '',
         date: '',
-        category: [], 
-        content: [''], 
+        category: [],
+        content: [''],
         main_image: null,
-        author_name: '', 
-        author_avatar: null, 
-        images: [] 
+        author_name: '',
+        author_avatar: null,
+        images: []
     });
 
-    const [loading, setLoading] = useState(false); // Add loading state
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (user) {
             setFormData(prevFormData => ({
                 ...prevFormData,
-                author_name: user.username || '', 
-                author_avatar: user.profilePhoto || null 
+                author_name: user.username || '',
+                author_avatar: user.profilePhoto || null
             }));
         }
     }, [user]);
@@ -83,49 +84,67 @@ function AddBlogPage() {
         setFormData({ ...formData, content: updatedContent });
     };
 
+    const uploadImage = async (imageFile) => {
+        const imageRef = storageRef(storage, `blogImages/${imageFile.name}_${Date.now()}`);
+        await uploadBytes(imageRef, imageFile);
+        const downloadURL = await getDownloadURL(imageRef);
+        return downloadURL;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const { title, date, category, content, main_image, author_name, author_avatar, images } = formData;
 
-        const formDataToSend = new FormData();
-        formDataToSend.append('title', title);
-        formDataToSend.append('date', date);
-        formDataToSend.append('category', JSON.stringify(category)); 
-        formDataToSend.append('content', JSON.stringify(content)); 
-        if (main_image) {
-            formDataToSend.append('main_image', main_image);
-        }
-        formDataToSend.append('author_name', author_name);
-        if (author_avatar) {
-            formDataToSend.append('author_avatar', author_avatar); 
-        }
-        images.forEach((image, index) => formDataToSend.append(`images[${index}]`, image));
-
         try {
-            setLoading(true); // Start loading
-            const token = localStorage.getItem('token');
-            await axios.post(`${BaseUrl}article`, formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
+            setLoading(true);
+
+            // Upload main_image and images to Firebase Storage
+            let mainImageUrl = '';
+            const imageUrls = [];
+
+            if (main_image) {
+                mainImageUrl = await uploadImage(main_image); // Upload main image
+            }
+
+            if (images.length > 0) {
+                for (const image of images) {
+                    const imageUrl = await uploadImage(image); // Upload additional images
+                    imageUrls.push(imageUrl);
                 }
-            });
-            toast.success('Blog post added successfully!'); // Show success toast
+            }
+
+            // Prepare data to send
+            const blogPostData = {
+                title,
+                date,
+                category,
+                content,
+                author_name,
+                author_avatar,
+                main_image: mainImageUrl, // Main image URL
+                images: imageUrls // Array of additional image URLs
+            };
+
+            // Push data to Firebase Realtime Database
+            const blogPostRef = push(dbRef(database, 'blogPosts'));
+            await set(blogPostRef, blogPostData);
+
+            toast.success('Blog post added successfully!');
             setFormData({
                 title: '',
                 date: '',
                 category: [],
                 content: [''],
                 main_image: null,
-                author_name: user.username || '', 
-                author_avatar: user.profilePhoto || null,
+                author_name: user.displayName || '',
+                author_avatar: user.photoURL || null,
                 images: []
             });
         } catch (error) {
             console.error('Error adding blog post:', error);
-            toast.error('Failed to add blog post.'); // Show error toast
+            toast.error('Failed to add blog post.');
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
 
@@ -168,7 +187,7 @@ function AddBlogPage() {
                             <Select
                                 id="category"
                                 name="category"
-                                options={predefinedCategories} 
+                                options={predefinedCategories}
                                 isMulti
                                 value={predefinedCategories.filter(cat => formData.category.includes(cat.value))}
                                 onChange={handleCategoryChange}
@@ -194,10 +213,10 @@ function AddBlogPage() {
                                 )}
                             </div>
                         ))}
-                        <button type="button" className="btn btn-secondary mb-3" onClick={addContentSection}>
-                            Add More Content
+                        <button type="button" className="btn btn-primary mt-3" onClick={addContentSection}>
+                            Add Another Content Section
                         </button>
-                        <div className="form-group">
+                        <div className="form-group mt-4">
                             <label htmlFor="main_image">Main Image</label>
                             <input
                                 type="file"
@@ -205,41 +224,9 @@ function AddBlogPage() {
                                 name="main_image"
                                 className="form-control"
                                 onChange={handleFileChange}
-                                required
                             />
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="author_name">Author Name</label>
-                            <input
-                                type="text"
-                                id="author_name"
-                                name="author_name"
-                                className="form-control"
-                                value={formData.author_name}
-                                readOnly
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="author_avatar">Author Avatar</label>
-                            {formData.author_avatar ? (
-                                <img
-                                    src={`${BaseUrl}${formData.author_avatar}`}
-                                    alt="Author Avatar"
-                                    width="50"
-                                    height="50"
-                                    className="d-block mb-3"
-                                />
-                            ) : (
-                                <input
-                                    type="file"
-                                    id="author_avatar"
-                                    name="author_avatar"
-                                    className="form-control"
-                                    onChange={handleFileChange}
-                                />
-                            )}
-                        </div>
-                        <div className="form-group">
+                        <div className="form-group mt-4">
                             <label htmlFor="images">Additional Images</label>
                             <input
                                 type="file"
@@ -250,11 +237,12 @@ function AddBlogPage() {
                                 onChange={handleImageChange}
                             />
                         </div>
-                        <button type="submit" className="btn btn-primary">Add Blog Post</button>
+                        <button type="submit" className="btn btn-success mt-4">
+                            Submit Blog
+                        </button>
                     </>
                 )}
             </form>
-          
         </div>
     );
 }

@@ -3,7 +3,9 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
-import { BaseUrl } from '../assets/utils/auth';
+import { ref, get } from 'firebase/database'; // Firebase database imports
+import { database } from '../../firebase'; // Import Firebase database from your configuration
+
 
 function FeaturedNews() {
   const [newsItems, setNewsItems] = useState([]);
@@ -13,12 +15,21 @@ function FeaturedNews() {
   useEffect(() => {
     async function fetchNewsItems() {
       try {
-        const response = await fetch(`${BaseUrl}articles`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+        // Reference to the 'articles' node in Firebase Realtime Database
+        const articlesRef = ref(database, 'blogPosts');
+        const snapshot = await get(articlesRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          // Convert data to an array of news items
+          const newsArray = Object.keys(data).map(key => ({
+            id: key,
+            ...data[key]
+          }));
+          setNewsItems(newsArray);
+        } else {
+          console.log('No data available');
         }
-        const data = await response.json();
-        setNewsItems(data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -75,7 +86,7 @@ function FeaturedNews() {
               <Link to={`/blog/${item.id}`}>
                 <img
                   className="img-fluid h-100"
-                  src={`${BaseUrl}${item.main_image}`}
+                  src={item.main_image} // Ensure `main_image` is the full URL
                   alt={`news-${item.id}`}
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
@@ -108,3 +119,4 @@ function FeaturedNews() {
 }
 
 export default FeaturedNews;
+
