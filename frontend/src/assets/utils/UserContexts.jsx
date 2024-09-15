@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { getDatabase, ref, get } from 'firebase/database';
 
 // Create the UserContext
 export const UserContext = createContext();
@@ -6,8 +7,11 @@ export const UserContext = createContext();
 // Create the UserProvider component to manage the user state
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [blogData, setBlogData] = useState(null);
+    const [selectedBlog, setSelectedBlog] = useState(null);
+    const [categories, setCategories] = useState([]);
 
-    // On component mount, check if the user data is stored in localStorage
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
@@ -15,9 +19,46 @@ export const UserProvider = ({ children }) => {
         }
     }, []);
 
-    // Return the provider, passing the user and setUser as context values
+    useEffect(() => {
+        const fetchBlogData = async () => {
+            const db = getDatabase();
+            const blogRef = ref(db, 'blogPosts');
+            try {
+                const snapshot = await get(blogRef);
+                if (snapshot.exists()) {
+                    setBlogData(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            } catch (error) {
+                console.error('Error fetching blog data:', error);
+            }
+        };
+
+        fetchBlogData();
+    }, []);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const fetchedCategories = [
+                    { value: 'Tech', label: 'Tech' },
+                    { value: 'Lifestyle', label: 'Lifestyle' },
+                    { value: 'Education', label: 'Education' },
+                    { value: 'Content', label: 'Content' },
+                    { value: 'Travel', label: 'Travel' }
+                ];
+                setCategories(fetchedCategories);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, selectedCategory, setSelectedCategory, blogData, setBlogData, selectedBlog, setSelectedBlog, categories }}>
             {children}
         </UserContext.Provider>
     );

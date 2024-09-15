@@ -16,6 +16,8 @@ import MyBlog from './component/MyBlog';
 import EditBlogPage from './component/EditBlogPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SingleBlog from './component/SingleBlog';
+import CategoriesPage from './component/CategoriesPage';
 
 function App() {
   return (
@@ -33,8 +35,11 @@ function App() {
             </Route>
             <Route path="/add-blog" element={<AddBlogPage />} />
             <Route path="/blog/:id" element={<SingleNews />} />
+            <Route path="/blogs" element={<SingleBlog />} />
             <Route path="/myblogs" element={<MyBlog />} />
             <Route path="/editblog/:id" element={<EditBlogPage />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+
           </Routes>
           <Footer />
           <ToastContainer />

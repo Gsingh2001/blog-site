@@ -1,8 +1,8 @@
-// firebase.js
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import storage utilities
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'; // Import auth utilities
+import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider } from 'firebase/auth'; // Import auth utilities
+import { getFirestore } from 'firebase/firestore'; // Import Firestore
 
 const firebaseConfig = {
     apiKey: "AIzaSyDtEajVaMtE6C3W_T__rdWI_xS0ROKne1o",
@@ -21,8 +21,20 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const storage = getStorage(app); // Initialize Firebase Storage
 const auth = getAuth(app); // Initialize Firebase Authentication
+const db = getFirestore(app); // Initialize Firestore
 
-export { database, storage, auth, createUserWithEmailAndPassword, updateProfile, ref, uploadBytes, getDownloadURL };
+// Initialize Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
 
-
-
+export { 
+    database, 
+    storage, 
+    auth, 
+    db, 
+    createUserWithEmailAndPassword, 
+    updateProfile, 
+    ref, 
+    uploadBytes, 
+    getDownloadURL, 
+    googleProvider 
+};

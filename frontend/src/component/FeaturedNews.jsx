@@ -4,7 +4,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Link } from 'react-router-dom';
 import { ref, get } from 'firebase/database'; // Firebase database imports
-import { database } from '../../firebase'; // Import Firebase database from your configuration
+import { database } from '../../FirebaseData'; // Import Firebase database from your configuration
 
 
 function FeaturedNews() {

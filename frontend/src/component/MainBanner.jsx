@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ref, get } from 'firebase/database'; // Import Firebase database functions
-import { database } from '../../firebase'; // Import Firebase database from your configuration
+import { database } from '../../FirebaseData'; // Import Firebase database from your configuration
 
 function MainBanner() {
   const [articles, setArticles] = useState([]);
